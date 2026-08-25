@@ -575,14 +575,7 @@ namespace GatosVsRatos
                 while (enemies.Count > 0 && Phase == GamePhase.Playing) yield return null;
                 if (wave < totalWaves - 1 && Phase == GamePhase.Playing)
                 {
-                    int bonus = difficulty switch
-                    {
-                        Difficulty.Dificil => 25 + currentWave * 3,
-                        Difficulty.Insano => 20 + currentWave * 3,
-                        _ => 30 + currentWave * 4
-                    };
-                    currency += bonus;
-                    ShowToast($"Onda vencida! Bônus: {bonus} peixes", 2.1f);
+                    ShowToast("Onda vencida! Prepare-se para a próxima.", 2.1f);
                     yield return new WaitForSeconds(2.3f);
                 }
             }
