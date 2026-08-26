@@ -31,6 +31,7 @@ namespace GatosVsRatos
         private Text selectionTitle;
         private Text selectionStats;
         private Text upgradeButtonText;
+        private Text sellButtonText;
         private Text musicToggleText;
         private Button upgradeButton;
         private Text toastText;
@@ -515,12 +516,17 @@ namespace GatosVsRatos
             selectionPanel = Panel("Selection", bottom.transform, new Color(0.09f, 0.14f, 0.14f, 1f)).gameObject;
             Place(selectionPanel.GetComponent<RectTransform>(), new Vector2(0.805f, 0.5f), new Vector2(700, 112), Vector2.zero);
             selectionTitle = Label("SelectionTitle", selectionPanel.transform, "Selecione uma torre", 25, FontStyle.Bold, Color.white);
-            Place(selectionTitle.rectTransform, new Vector2(0.28f, 0.66f), new Vector2(350, 36), Vector2.zero);
+            Place(selectionTitle.rectTransform, new Vector2(0.27f, 0.66f), new Vector2(330, 36), Vector2.zero);
             selectionStats = Label("SelectionStats", selectionPanel.transform, "", 18, FontStyle.Normal, new Color32(191, 212, 202, 255));
-            Place(selectionStats.rectTransform, new Vector2(0.28f, 0.3f), new Vector2(350, 34), Vector2.zero);
+            Place(selectionStats.rectTransform, new Vector2(0.27f, 0.3f), new Vector2(330, 34), Vector2.zero);
             upgradeButton = UiButton("Upgrade", selectionPanel.transform, "EVOLUIR", new Color32(203, 144, 53, 255), UpgradeSelected);
-            Place(upgradeButton.GetComponent<RectTransform>(), new Vector2(0.78f, 0.5f), new Vector2(245, 72), Vector2.zero);
+            Place(upgradeButton.GetComponent<RectTransform>(), new Vector2(0.65f, 0.5f), new Vector2(175, 72), Vector2.zero);
             upgradeButtonText = upgradeButton.GetComponentInChildren<Text>();
+            upgradeButtonText.fontSize = 19;
+            Button sellButton = UiButton("Sell", selectionPanel.transform, "VENDER", new Color32(176, 83, 62, 255), SellSelected);
+            Place(sellButton.GetComponent<RectTransform>(), new Vector2(0.88f, 0.5f), new Vector2(145, 72), Vector2.zero);
+            sellButtonText = sellButton.GetComponentInChildren<Text>();
+            sellButtonText.fontSize = 18;
             selectionPanel.SetActive(false);
 
             toastText = Label("Toast", uiRoot, "", 25, FontStyle.Bold, Color.white);
@@ -731,6 +737,7 @@ namespace GatosVsRatos
             if (selectedTower == null) return;
             selectionTitle.text = $"{Balance.TowerName(selectedTower.Kind)} • Nível {selectedTower.Level}";
             selectionStats.text = Balance.TowerRole(selectedTower.Kind);
+            sellButtonText.text = $"VENDER\n+{selectedTower.SellPrice} PEIXES";
             if (selectedTower.Level >= 3)
             {
                 upgradeButtonText.text = "NÍVEL MÁXIMO";
@@ -751,6 +758,19 @@ namespace GatosVsRatos
                 RefreshSelection();
                 ShowToast("Torre evoluída! Alcance e poder aumentaram.", 1.8f);
             }
+        }
+
+        private void SellSelected()
+        {
+            if (Phase != GamePhase.Playing || selectedTower == null) return;
+            Tower tower = selectedTower;
+            int refund = tower.SellPrice;
+            selectedTower.SetSelected(false);
+            selectedTower = null;
+            selectionPanel.SetActive(false);
+            currency += refund;
+            tower.Sell();
+            ShowToast($"Torre vendida por {refund} peixes.", 1.8f);
         }
 
         private void UpdateHud()
@@ -830,7 +850,7 @@ namespace GatosVsRatos
             string instructions =
                 "1. Escolha um gato na barra inferior.\n" +
                 "2. Toque em um ponto + do jardim para construir.\n" +
-                "3. Toque em uma torre pronta e use EVOLUIR (máximo: nível 3).\n\n" +
+                "3. Toque em uma torre pronta para EVOLUIR ou VENDER (reembolso de 30%).\n\n" +
                 "GATO METRALHA — disparo mais rápido, dano por alvo.\n" +
                 "GATO BAZUCA — disparo lento, maior dano e alcance.\n" +
                 "GATO CATAPULTA — pedras que atingem vários ratos.\n\n" +

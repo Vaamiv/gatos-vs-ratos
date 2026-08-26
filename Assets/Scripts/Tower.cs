@@ -7,9 +7,12 @@ namespace GatosVsRatos
     {
         public TowerKind Kind { get; private set; }
         public int Level { get; private set; }
+        public int TotalInvested { get; private set; }
+        public int SellPrice => Balance.SellRefund(TotalInvested);
         public int UpgradePrice => Level >= 3 ? 0 : Balance.UpgradeCost(Kind, Level,
             GameApp.Instance != null ? GameApp.Instance.CurrentDifficulty : Difficulty.Normal);
 
+        private TowerSpot ownerSpot;
         private TowerStats stats;
         private Enemy target;
         private Transform weaponPivot;
@@ -18,10 +21,12 @@ namespace GatosVsRatos
         private float nextShot;
         private float nextSearch;
 
-        public void Initialize(TowerKind kind)
+        public void Initialize(TowerKind kind, TowerSpot spot, int purchasePrice)
         {
             Kind = kind;
             Level = 1;
+            ownerSpot = spot;
+            TotalInvested = purchasePrice;
             stats = Balance.Tower(kind, Level);
 
             var collider = GetComponent<CircleCollider2D>();
@@ -98,7 +103,9 @@ namespace GatosVsRatos
 
         public bool TryUpgrade()
         {
-            if (Level >= 3 || !GameApp.Instance.TrySpend(UpgradePrice)) return false;
+            int price = UpgradePrice;
+            if (Level >= 3 || !GameApp.Instance.TrySpend(price)) return false;
+            TotalInvested += price;
             Level++;
             stats = Balance.Tower(Kind, Level);
             rangeView.transform.localScale = Vector3.one * stats.Range * 2f;
@@ -106,6 +113,12 @@ namespace GatosVsRatos
             ArtFactory.Burst(transform.position + Vector3.up * 0.55f, new Color32(255, 220, 74, 255), 10);
             GameApp.Instance.Audio.Upgrade();
             return true;
+        }
+
+        public void Sell()
+        {
+            if (ownerSpot != null) ownerSpot.Release();
+            Destroy(gameObject);
         }
 
         public void SetSelected(bool selected)

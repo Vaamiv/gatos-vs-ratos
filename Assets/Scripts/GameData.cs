@@ -27,6 +27,8 @@ namespace GatosVsRatos
 
     public static class Balance
     {
+        public const float SellRefundRate = 0.3f;
+
         public static int BuildCost(TowerKind kind, Difficulty difficulty = Difficulty.Normal)
         {
             int baseCost = kind switch
@@ -55,6 +57,11 @@ namespace GatosVsRatos
             };
             int normalBuildCost = BuildCost(kind, Difficulty.Normal);
             return Mathf.RoundToInt(normalBuildCost * multiplier * difficultyFactor / 5f) * 5;
+        }
+
+        public static int SellRefund(int totalInvested)
+        {
+            return Mathf.FloorToInt(Mathf.Max(0, totalInvested) * SellRefundRate);
         }
 
         public static TowerStats Tower(TowerKind kind, int level)

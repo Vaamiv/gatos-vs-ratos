@@ -38,14 +38,22 @@ namespace GatosVsRatos
         public Tower Occupy(TowerKind kind)
         {
             IsOccupied = true;
-            for (int i = transform.childCount - 1; i >= 0; i--) Destroy(transform.GetChild(i).gameObject);
+            for (int i = 0; i < transform.childCount; i++) transform.GetChild(i).gameObject.SetActive(false);
             GetComponent<Collider2D>().enabled = false;
             var towerObject = new GameObject(Balance.TowerName(kind));
             towerObject.transform.position = transform.position;
             towerObject.transform.SetParent(transform.parent, true);
             var tower = towerObject.AddComponent<Tower>();
-            tower.Initialize(kind);
+            tower.Initialize(kind, this, Balance.BuildCost(kind, GameApp.Instance.CurrentDifficulty));
             return tower;
+        }
+
+        public void Release()
+        {
+            IsOccupied = false;
+            for (int i = 0; i < transform.childCount; i++) transform.GetChild(i).gameObject.SetActive(true);
+            fill.color = normalColor;
+            GetComponent<Collider2D>().enabled = true;
         }
     }
 }
