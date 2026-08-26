@@ -51,12 +51,11 @@ Também é possível executar em modo batch:
 - `Assets/Scripts/AudioKit.cs` — efeitos e duas músicas originais sintetizadas por código.
 - `Assets/Resources/MenuBackground.png` — ilustração original do menu.
 
-## Entrega da disciplina
+## Entregaveis
 
-- Executável: **ADICIONAR LINK**
-- Vídeo demonstrativo: **ADICIONAR LINK**
+- Executável: **LINK EM CONSTRUÇÃO**
+- Vídeo demonstrativo: **LINK EM CONSTRUÇÃO**
 
-`diegopatr` 
 
 ## Arte
 
