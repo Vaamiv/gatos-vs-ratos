@@ -53,12 +53,10 @@ Também é possível executar em modo batch:
 
 ## Entrega da disciplina
 
-Antes da entrega, substitua os campos abaixo pelos links públicos correspondentes:
-
 - Executável: **ADICIONAR LINK**
 - Vídeo demonstrativo: **ADICIONAR LINK**
 
-As duas pessoas da dupla devem realizar commits próprios no repositório e adicionar o usuário `diegopatr` como colaborador no GitHub.
+`diegopatr` 
 
 ## Arte
 
