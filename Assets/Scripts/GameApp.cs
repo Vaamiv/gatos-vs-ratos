@@ -593,12 +593,15 @@ namespace GatosVsRatos
         private int EnemiesInWave(int zeroBasedWave)
         {
             int stageExtra = selectedStage / 2;
-            return difficulty switch
+            int baseCount = difficulty switch
             {
                 Difficulty.Dificil => 6 + stageExtra + zeroBasedWave * 2,
                 Difficulty.Insano => 7 + stageExtra + zeroBasedWave * 2 + zeroBasedWave / 3,
                 _ => 5 + stageExtra + zeroBasedWave + zeroBasedWave / 2
             };
+            float waveProgress = totalWaves <= 1 ? 1f : zeroBasedWave / (totalWaves - 1f);
+            float pressureMultiplier = Mathf.Lerp(1.10f, 1.25f, waveProgress);
+            return Mathf.CeilToInt(baseCount * pressureMultiplier);
         }
 
         private EnemyKind ChooseEnemy(int wave, int index)
@@ -630,7 +633,7 @@ namespace GatosVsRatos
                     healthPerWave = 0.06f;
                     speedPerWave = 0.008f;
                     maximumSpeed = 1.30f;
-                    bountyMultiplier = 0.85f;
+                    bountyMultiplier = 0.72f;
                     baseDamageBonus = 0;
                     break;
                 case Difficulty.Insano:
@@ -639,7 +642,7 @@ namespace GatosVsRatos
                     healthPerWave = 0.07f;
                     speedPerWave = 0.009f;
                     maximumSpeed = 1.36f;
-                    bountyMultiplier = 0.70f;
+                    bountyMultiplier = 0.60f;
                     baseDamageBonus = 1;
                     break;
                 default:
@@ -648,7 +651,7 @@ namespace GatosVsRatos
                     healthPerWave = 0.055f;
                     speedPerWave = 0.008f;
                     maximumSpeed = 1.28f;
-                    bountyMultiplier = 1f;
+                    bountyMultiplier = 0.85f;
                     baseDamageBonus = 0;
                     break;
             }
