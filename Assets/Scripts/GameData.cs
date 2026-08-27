@@ -70,8 +70,21 @@ namespace GatosVsRatos
             return kind switch
             {
                 TowerKind.Metralhadora => new TowerStats(2.75f + extra * 0.18f, 0.26f - extra * 0.035f, 7f + extra * 5f, 12f),
-                TowerKind.Bazuca => new TowerStats(4.2f + extra * 0.25f, 2.15f - extra * 0.2f, 52f + extra * 30f, 7f),
-                _ => new TowerStats(3.55f + extra * 0.22f, 1.55f - extra * 0.14f, 23f + extra * 14f, 6.2f, 1.1f + extra * 0.18f)
+                TowerKind.Bazuca => new TowerStats(4.2f + extra * 0.25f, 2.15f - extra * 0.2f,
+                    extra == 0 ? 65f : extra == 1 ? 105f : 150f, 7f),
+                _ => new TowerStats(3.55f + extra * 0.22f, 1.55f - extra * 0.14f,
+                    23f + extra * 14f, 6.2f, 1.25f + extra * 0.22f)
+            };
+        }
+
+        public static float DamageMultiplier(TowerKind tower, EnemyKind enemy)
+        {
+            if (enemy != EnemyKind.Grandao) return 1f;
+            return tower switch
+            {
+                TowerKind.Metralhadora => 0.75f,
+                TowerKind.Bazuca => 1.40f,
+                _ => 1f
             };
         }
 
@@ -89,9 +102,9 @@ namespace GatosVsRatos
         {
             return kind switch
             {
-                TowerKind.Metralhadora => "Muito rápido • alvo único",
-                TowerKind.Bazuca => "Lento • dano altíssimo",
-                _ => "Dano em área • grupos"
+                TowerKind.Metralhadora => "Muito rápido • corredores • fraca contra grandões",
+                TowerKind.Bazuca => "Longo alcance • +40% contra grandões",
+                _ => "Área ampliada • ideal contra grupos"
             };
         }
 

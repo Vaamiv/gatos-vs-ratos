@@ -12,6 +12,7 @@ namespace GatosVsRatos
         private float splash;
         private bool impacted;
         private float life = 5f;
+        private Vector3 destination;
 
         public static Projectile Spawn(Vector3 position, Enemy target, TowerKind kind, float damage, float speed, float splash)
         {
@@ -23,6 +24,7 @@ namespace GatosVsRatos
             projectile.damage = damage;
             projectile.speed = speed;
             projectile.splash = splash;
+            projectile.destination = target.transform.position;
             projectile.CreateVisual();
             return projectile;
         }
@@ -59,18 +61,19 @@ namespace GatosVsRatos
         {
             if (impacted) return;
             life -= Time.deltaTime;
-            if (life <= 0 || target == null || !target.IsAlive)
+            if (life <= 0)
             {
                 Destroy(gameObject);
                 return;
             }
 
-            Vector3 direction = target.transform.position - transform.position;
+            if (target != null && target.IsAlive) destination = target.transform.position;
+            Vector3 direction = destination - transform.position;
             if (kind == TowerKind.Bazuca && direction.sqrMagnitude > 0.001f)
                 transform.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg);
 
             float step = speed * Time.deltaTime;
-            transform.position = Vector3.MoveTowards(transform.position, target.transform.position, step);
+            transform.position = Vector3.MoveTowards(transform.position, destination, step);
             if (direction.sqrMagnitude <= Mathf.Max(0.04f, step * step * 1.5f)) Impact();
         }
 
@@ -94,14 +97,37 @@ namespace GatosVsRatos
                 {
                     Enemy enemy = enemies[i];
                     if (enemy != null && enemy.IsAlive && (enemy.transform.position - transform.position).sqrMagnitude <= splash * splash)
-                        enemy.TakeDamage(damage);
+                        enemy.TakeDamage(DamageAgainst(enemy));
                 }
             }
-            else if (target != null && target.IsAlive)
+            else
             {
-                target.TakeDamage(damage);
+                Enemy impactTarget = target != null && target.IsAlive ? target : FindReplacementTarget(0.8f);
+                if (impactTarget != null) impactTarget.TakeDamage(DamageAgainst(impactTarget));
             }
             Destroy(gameObject);
+        }
+
+        private float DamageAgainst(Enemy enemy)
+        {
+            return damage * Balance.DamageMultiplier(kind, enemy.Kind);
+        }
+
+        private Enemy FindReplacementTarget(float radius)
+        {
+            Enemy replacement = null;
+            float bestDistance = radius * radius;
+            var enemies = GameApp.Instance.Enemies;
+            for (int i = 0; i < enemies.Count; i++)
+            {
+                Enemy enemy = enemies[i];
+                if (enemy == null || !enemy.IsAlive) continue;
+                float distance = (enemy.transform.position - transform.position).sqrMagnitude;
+                if (distance > bestDistance) continue;
+                bestDistance = distance;
+                replacement = enemy;
+            }
+            return replacement;
         }
     }
 }

@@ -640,6 +640,7 @@ namespace GatosVsRatos
             float maximumSpeed;
             float bountyMultiplier;
             int baseDamageBonus;
+            float waveProgress = totalWaves <= 1 ? 1f : (currentWave - 1f) / (totalWaves - 1f);
             switch (difficulty)
             {
                 case Difficulty.Dificil:
@@ -657,7 +658,7 @@ namespace GatosVsRatos
                     healthPerWave = 0.07f;
                     speedPerWave = 0.009f;
                     maximumSpeed = 1.36f;
-                    bountyMultiplier = 0.35f;
+                    bountyMultiplier = Mathf.Lerp(0.65f, 0.35f, waveProgress);
                     baseDamageBonus = 1;
                     break;
                 default:
