@@ -21,7 +21,7 @@ namespace GatosVsRatos
         private Transform visual;
 
         public void Initialize(EnemyKind kind, IReadOnlyList<Vector3> waypoints, float healthMultiplier,
-            float speedMultiplier, int waveNumber, float bountyMultiplier = 1f, int baseDamageBonus = 0)
+            float speedMultiplier, float bountyMultiplier = 1f, int baseDamageBonus = 0)
         {
             Kind = kind;
             path = waypoints;
@@ -34,23 +34,23 @@ namespace GatosVsRatos
                     maxHealth = 30f * healthMultiplier;
                     speed = 1.75f * speedMultiplier;
                     baseDamage = 1;
-                    bounty = 14;
+                    bounty = 7;
                     break;
                 case EnemyKind.Grandao:
                     maxHealth = 115f * healthMultiplier;
                     speed = 0.72f * speedMultiplier;
                     baseDamage = 3;
-                    bounty = 28;
+                    bounty = 15;
                     break;
                 default:
                     maxHealth = 50f * healthMultiplier;
                     speed = 1.08f * speedMultiplier;
                     baseDamage = 1;
-                    bounty = 18;
+                    bounty = 9;
                     break;
             }
             baseDamage += baseDamageBonus;
-            bounty = Mathf.Max(5, Mathf.RoundToInt((bounty + Mathf.FloorToInt(waveNumber / 4f) * 2) * bountyMultiplier));
+            bounty = Mathf.Max(2, Mathf.RoundToInt(bounty * bountyMultiplier));
             health = maxHealth;
             IsAlive = true;
 

@@ -50,6 +50,7 @@ namespace GatosVsRatos
         private int totalWaves;
         private float timeRemaining;
         private bool wavesFinished;
+        private bool waveInProgress;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Bootstrap()
@@ -83,12 +84,15 @@ namespace GatosVsRatos
         {
             if (Phase != GamePhase.Playing) return;
 
-            timeRemaining -= Time.deltaTime;
-            if (timeRemaining <= 0f)
+            if (waveInProgress)
             {
-                timeRemaining = 0f;
-                Defeat("O tempo da missão acabou!");
-                return;
+                timeRemaining -= Time.deltaTime;
+                if (timeRemaining <= 0f)
+                {
+                    timeRemaining = 0f;
+                    Defeat("O tempo da missão acabou!");
+                    return;
+                }
             }
 
             if (Input.GetKeyDown(KeyCode.Alpha1)) SelectBuildKind(TowerKind.Metralhadora);
@@ -352,6 +356,7 @@ namespace GatosVsRatos
                 _ => 10
             };
             wavesFinished = false;
+            waveInProgress = false;
             gameCamera.backgroundColor = activeStage.GroundColor;
             Audio.PlayBattleMusic();
 
@@ -565,6 +570,7 @@ namespace GatosVsRatos
                 string warning = wave == totalWaves - 1 ? "ONDA FINAL" : $"ONDA {currentWave}";
                 ShowToast($"{warning} • {count} ratos chegando!", 1.8f);
                 yield return new WaitForSeconds(1f);
+                waveInProgress = true;
                 for (int i = 0; i < count && Phase == GamePhase.Playing; i++)
                 {
                     EnemyKind kind = ChooseEnemy(wave, i);
@@ -579,13 +585,22 @@ namespace GatosVsRatos
                 }
 
                 while (enemies.Count > 0 && Phase == GamePhase.Playing) yield return null;
+                waveInProgress = false;
                 if (wave < totalWaves - 1 && Phase == GamePhase.Playing)
                 {
-                    ShowToast("Onda vencida! Prepare-se para a próxima.", 2.1f);
+                    int timeBonus = difficulty switch
+                    {
+                        Difficulty.Dificil => 10,
+                        Difficulty.Insano => 12,
+                        _ => 8
+                    };
+                    timeRemaining += timeBonus;
+                    ShowToast($"Onda vencida! +{timeBonus}s para a próxima.", 2.1f);
                     yield return new WaitForSeconds(2.3f);
                 }
             }
 
+            waveInProgress = false;
             wavesFinished = true;
             if (Phase == GamePhase.Playing && enemies.Count == 0) Victory();
         }
@@ -633,7 +648,7 @@ namespace GatosVsRatos
                     healthPerWave = 0.06f;
                     speedPerWave = 0.008f;
                     maximumSpeed = 1.30f;
-                    bountyMultiplier = 0.72f;
+                    bountyMultiplier = 0.60f;
                     baseDamageBonus = 0;
                     break;
                 case Difficulty.Insano:
@@ -642,7 +657,7 @@ namespace GatosVsRatos
                     healthPerWave = 0.07f;
                     speedPerWave = 0.009f;
                     maximumSpeed = 1.36f;
-                    bountyMultiplier = 0.60f;
+                    bountyMultiplier = 0.35f;
                     baseDamageBonus = 1;
                     break;
                 default:
@@ -651,7 +666,7 @@ namespace GatosVsRatos
                     healthPerWave = 0.055f;
                     speedPerWave = 0.008f;
                     maximumSpeed = 1.28f;
-                    bountyMultiplier = 0.85f;
+                    bountyMultiplier = 1f;
                     baseDamageBonus = 0;
                     break;
             }
@@ -660,7 +675,7 @@ namespace GatosVsRatos
             float speedMultiplier = Mathf.Min(maximumSpeed,
                 difficultySpeed * (1f + selectedStage * 0.018f + (currentWave - 1) * speedPerWave));
             enemyObject.AddComponent<Enemy>().Initialize(kind, path, healthMultiplier, speedMultiplier,
-                currentWave, bountyMultiplier, baseDamageBonus);
+                bountyMultiplier, baseDamageBonus);
         }
 
         public void RegisterEnemy(Enemy enemy)
